@@ -17,7 +17,10 @@ class LocalDatasourceImpl implements LocalDatasource {
     required int skip,
     required int limit,
   }) async {
-    return _database.select(_database.productTable).get();
+    return (_database.select(_database.productTable)
+          ..orderBy([(t) => OrderingTerm.asc(t.id)])
+          ..limit(limit, offset: skip))
+        .get();
   }
 
   @override
