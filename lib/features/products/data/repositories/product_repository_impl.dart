@@ -22,7 +22,7 @@ class ProductRepositoryImpl implements ProductRepository {
     } on DioException catch (e) {
       return Left(_mapDioError(e));
     } catch (e) {
-      return Left(Failure(message: "Unknown Error: ${e.toString()}"));
+      return Left(UnknownFailure(message: "Unknown Error: ${e.toString()}"));
     }
   }
 
@@ -31,21 +31,15 @@ class ProductRepositoryImpl implements ProductRepository {
     return switch (e.type) {
       DioExceptionType.connectionTimeout ||
       DioExceptionType.sendTimeout ||
-      DioExceptionType.receiveTimeout => const Failure(
-        message: 'Connection timed out. Try again.',
-      ),
-      DioExceptionType.connectionError => const Failure(
-        message: 'No internet connection.',
-      ),
-      DioExceptionType.badResponse => Failure(
+      DioExceptionType.receiveTimeout => const ConnectionTimeoutFailure(),
+      DioExceptionType.connectionError => const ConnectionFailure(),
+      DioExceptionType.badResponse => BadResponseFailure(
         code: code,
         message: _serverMessage(e.response?.data) ?? 'Server error ($code).',
       ),
-      DioExceptionType.cancel => const Failure(message: 'Request cancelled.'),
-      DioExceptionType.badCertificate => const Failure(
-        message: 'Bad certificate.',
-      ),
-      DioExceptionType.unknown => Failure(
+      DioExceptionType.cancel => const CancelFailure(),
+      DioExceptionType.badCertificate => const BadCertificateFailure(),
+      DioExceptionType.unknown => UnknownFailure(
         message: e.message ?? 'Something went wrong.',
       ),
       _ => Failure(message: e.message ?? 'Something went wrong.'),

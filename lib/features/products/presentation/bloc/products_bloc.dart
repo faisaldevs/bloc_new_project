@@ -8,8 +8,8 @@ part 'products_event.dart';
 part 'products_state.dart';
 
 class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
-  final GetProducts _getProducts;
-  ProductsBloc({required this._getProducts})
+  final GetProducts getProducts;
+  ProductsBloc({required this.getProducts})
     : super(ProductsState(status: ProductStatus.initial)) {
     on<GetProductStarted>(
       _getProductStartedHandler,
@@ -24,7 +24,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
   ) async {
     emit(state.copyWith(status: ProductStatus.loading));
 
-    final data = await _getProducts(limit: 20, skip: 0);
+    final data = await getProducts(limit: 20, skip: 0);
 
     data.fold(
       (failure) => emit(
@@ -55,7 +55,7 @@ class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
 
     emit(state.copyWith(status: ProductStatus.loadMore));
 
-    final data = await _getProducts(limit: 20, skip: state.productData.length);
+    final data = await getProducts(limit: 20, skip: state.productData.length);
 
     data.fold(
       (failure) => emit(
